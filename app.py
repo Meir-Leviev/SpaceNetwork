@@ -12,6 +12,11 @@ class Satellite(SpaceEntity):
         else:
             print(f"[{self.name}] Final destination reached: {packet.data}")
 
+class Earth(SpaceEntity):
+
+    def receive_signal(self, packet: Packet):
+        pass
+
 ship1 = SpaceNetwork(level=4)
 sat1 = Satellite("sat1", 100)
 sat2 = Satellite("sat2", 200)
