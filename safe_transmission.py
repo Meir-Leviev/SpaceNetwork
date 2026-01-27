@@ -10,3 +10,9 @@ class RelayPacket(Packet):
 
     def __repr__(self):
         return f"RelayPacket(Relaying [{self.data}] to {self.receiver}from {self.sender})"
+
+def wrap_r_p(p_final, lst_sat):
+    r_pac = p_final
+    for i in range(len(lst_sat) -2, 0,-1):
+        r_pac = RelayPacket(r_pac , lst_sat[i-1], lst_sat[i])
+    return r_pac
