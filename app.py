@@ -1,11 +1,16 @@
 from space_network_lib import *
 import time
-from safe_transmission import BrokenConnectionError
+from safe_transmission import BrokenConnectionError, RelayPacket
 
 class Satellite(SpaceEntity):
 
     def receive_signal(self, packet: Packet):
-        print( f"[{self.name}] Received: {packet}" )
+        if isinstance(packet, RelayPacket):
+            inner_packet = packet.data
+            print(f"[{self.name}] Unwrapping and forwarding to {inner_packet.receiver}")
+            attempt_transmission(inner_packet)
+        else:
+            print(f"[{self.name}] Final destination reached: {packet.data}")
 
 ship1 = SpaceNetwork(level=4)
 sat1 = Satellite("sat1", 100)
