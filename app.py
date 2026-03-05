@@ -1,6 +1,7 @@
 from space_network_lib import *
 import time
-from safe_transmission import BrokenConnectionError, RelayPacket, wrap_r_p
+from safe_transmission import BrokenConnectionError, RelayPacket, wrap_r_p, smart_send_packet
+
 
 class Satellite(SpaceEntity):
 
@@ -8,7 +9,10 @@ class Satellite(SpaceEntity):
         if isinstance(packet, RelayPacket):
             inner_packet = packet.data
             print(f"[{self.name}] Unwrapping and forwarding to {inner_packet.receiver}")
-            attempt_transmission(inner_packet)
+            try:
+                attempt_transmission(inner_packet)
+            except BrokenConnectionError:
+                print(f"[{self.name}] Transmission failed")
         else:
             print(f"[{self.name}] Final destination reached: {packet.data}")
 
@@ -17,16 +21,18 @@ class Earth(SpaceEntity):
     def receive_signal(self, packet: Packet):
         pass
 
-ship1 = SpaceNetwork(level=5)
+ship1 = SpaceNetwork(level=6)
 earth = Earth("Earth",0)
-sat1 = Satellite("sat1", 100)
-sat2 = Satellite("sat2", 200)
-sat3 = Satellite("sat3", 300)
-sat4 = Satellite("sat4", 400)
-l_sat = [earth,sat1,sat2,sat3,sat4]
+sat1 = Satellite("sat1", 50)
+sat2 = Satellite("sat2", 100)
+sat3 = Satellite("sat3", 150)
+sat4 = Satellite("sat4", 200)
+sat5 = Satellite("sat5", 250)
+sat6 = Satellite("sat6", 300)
+l_sat = [earth,sat4,sat3,sat5,sat1, sat2]
 # msg = Packet("Hello from sat1!", sat1, sat2)
-p_final1 = Packet("Hello from Earth!", sat3, sat4)
-p=wrap_r_p(p_final1, l_sat)
+msg1 = Packet("Hello from Earth!", earth, sat6)
+packet1 = smart_send_packet(msg1, l_sat)
 
 
 def attempt_transmission(packet):
@@ -52,7 +58,7 @@ def attempt_transmission(packet):
 
 
 try:
-    attempt_transmission(p)
+    attempt_transmission(packet1)
 except BrokenConnectionError:
     print("Transmission failed")
 
